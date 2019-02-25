@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import djcelery
 
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
@@ -60,9 +61,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework',
     'django_extensions',
+    'djcelery',
 
-    'geocoding'
+    'accounts',
+    'polls',
+    'jobs',
 ]
 
 MIDDLEWARE = [
@@ -152,9 +157,19 @@ MEDIA_PATH = 'media/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, STATIC_PATH))
 MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, MEDIA_PATH))
 
+djcelery.setup_loader()
+
+# Redis
+REDIS_PORT = get_env_var('REDIS_PORT', '6379')
+REDIS_HOST = get_env_var('REDIS_HOST', 'localhost')
+# REDIS_HOST = 'redis'
+
+BROKER_URL = 'redis://{0}:{1}/0'.format(REDIS_HOST, REDIS_PORT)
+CELERY_RESULT_BACKEND = BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 
 # load environment variables from .env file
 read_env()
-
-
-GOOGLE_MAPS_API_KEY = get_env_var('GOOGLE_MAPS_API_KEY')

@@ -1,1 +1,1 @@
-# geocoding
+# django-getting-started

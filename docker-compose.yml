@@ -1,0 +1,84 @@
+version: '2'
+
+services:
+  # PostgreSQL database
+#  db:
+#    image: postgres:9.4
+#    hostname: db
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_DB=postgres
+#    ports:
+#      - "5432:5432"
+
+  # Redis used by the celery worker
+  redis:
+    image: redis:3.2-alpine
+#    command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      - REDIS_HOST=redis
+    hostname: redis
+    # ports useless when using network_mode
+    ports:
+      - "6379:6379"
+#    network_mode: 'host'
+    expose:
+      - "6379"
+
+  # RabbitMQ - will be used by the socketJS
+#  rabbit:
+#    hostname: rabbit
+#    image: "rabbitmq:3.7.0"
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=admin
+#      - RABBITMQ_DEFAULT_PASS=password
+#    ports:
+#      - "5672:5672" # we forward this port because its useful in debugging
+#      - "15672:15672" # we can access rabbitmq management plugin
+#    network_mode: 'host'
+#    expose:
+#      - "6379"
+
+  # Django web server
+  web:
+#     build: .
+#     command: ./run_gunicorn.sh
+#     command: ./run_web.sh
+    build:
+      context: .
+      dockerfile: Dockerfile-gunicorn
+#      dockerfile: Dockerfile
+    hostname: web
+#    volumes:
+#      - .:/app # mount current directory inside container
+    ports:
+      - "8000:8000"
+    # setup links so that web knows about db, redis and rabbit
+#    links:
+#      - db
+#      - redis
+#      - rabbit
+#    depends_on:
+#      - redis
+#    network_mode: 'host'
+    expose:
+      - "8000"
+
+  worker:
+#     build: .
+#     command: ./run_celery.sh
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: worker
+    environment:
+      - REDIS_HOST=redis
+#    volumes:
+#      - .:/app
+##    links:
+##      - db
+##      - redis
+##      - rabbit
+#    depends_on:
+#      - redis

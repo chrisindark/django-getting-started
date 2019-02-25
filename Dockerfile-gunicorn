@@ -1,0 +1,44 @@
+# Dockerfile
+
+# Use base python image with python 3.6
+# FROM directive instructing base image to build upon
+FROM python:3.6-alpine
+
+ENV PYTHONUNBUFFERED 1
+
+ADD . /app
+
+# Set working directory to /app
+WORKDIR /app
+
+# Add requirements.txt to the image
+#ADD requirements.txt /app
+
+#RUN apk update && apk install add build-base postgresql-dev libffi-dev
+
+#RUN apk update
+#  && apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev \
+#  && apk add libffi-dev openssl-dev py-cffi \
+#  && apk add gettext
+
+#RUN apk add --virtual=build-dependencies tzdata ca-certificates \
+#  curl gcc py-cffi py-cryptography python-dev libffi-dev openssl-dev build-base linux-headers
+
+# Install python dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+
+# Create unprivileged user
+#RUN adduser --disabled-password --gecos '' myuser
+
+# COPY startup script into known file location in container
+#ADD run_gunicorn.sh /app/
+
+# EXPOSE port 8000 to allow communication to/from server
+# EXPOSE 8000
+
+# CMD specifcies the command to execute to start the server running.
+#CMD ./run_gunicorn.sh
+CMD python manage.py runserver 0.0.0.0:8000
+# done!
